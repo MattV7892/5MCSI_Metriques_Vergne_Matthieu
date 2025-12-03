@@ -60,7 +60,7 @@ Voici une vidéo d'accompagnement pour vous aider dans cette séquence de créat
   
 Notions acquises lors de cette séquence :  
 Vous avez créer un hébergement (gratuit) et découvert également que vous pouvez installer bien d'autres applications (Django, Drupal, Jenkins, Magento, Symphony, etc...). Les perspectives sont nombreuses.
-
+-
 ---------------------------------------------------------------------------------------------
 Séquence 3 : Les Actions GitHUB (Industrialisation Continue)
 ---------------------------------------------------------------------------------------------
