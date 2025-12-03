@@ -1,1 +1,60 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script type="text/javascript">
+      google.charts.load("current", { packages: ["corechart"] });
+      google.charts.setOnLoadCallback(loadData);
+
+      function loadData() {
+        const url =
+          "https://samples.openweathermap.org/data/2.5/forecast?lat=0&lon=0&appid=xxx";
+
+        fetch(url)
+          .then(response => response.json())
+          .then(json => drawChart(json))
+          .catch(error => console.error("Erreur lors du chargement des données :", error));
+      }
+
+      function drawChart(apiData) {
+        var data = new google.visualization.DataTable();
+        data.addColumn("string", "Date");
+        data.addColumn("number", "Température (°C)");
+
+        // Récupération des données API + conversion Kelvin → Celsius
+        apiData.list.forEach(entry => {
+          const dateLabel = entry.dt_txt;
+          const tempC = entry.main.temp - 273.15;
+          data.addRow([dateLabel, Math.round(tempC * 10) / 10]);
+        });
+
+        var options = {
+          title: "Évolution des températures - Tawarano",
+          hAxis: {
+            title: "Date / Heure",
+            slantedText: true,
+            slantedTextAngle: 45
+          },
+          vAxis: {
+            title: "Température (°C)"
+          },
+          legend: { position: "none" },
+          bar: { groupWidth: "75%" }
+        };
+
+        var chart = new google.visualization.ColumnChart(
+          document.getElementById("chart_div")
+        );
+
+        chart.draw(data, options);
+      }
+    </script>
+  </head>
+
+  <body>
+    <h2>Températures prévues – Tawarano</h2>
+    <div id="chart_div" style="width: 1000px; height: 600px;"></div>
+  </body>
+</html>
 
