@@ -2,144 +2,97 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Analyse des Commits GitHub</title>
+    <title>Extraction des Minutes – API Flask</title>
 
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- Style Futuriste -->
     <style>
         body {
-            background: radial-gradient(circle at 20% 20%, #0d1b2a, #000);
+            background: linear-gradient(135deg, #0a0f1f, #08152e, #000);
             font-family: "Orbitron", sans-serif;
-            color: #e0eaff;
-            margin: 0;
-            padding: 0;
+            color: #cfe8ff;
+            text-align: center;
+            padding: 40px;
         }
 
         h1 {
-            text-align: center;
-            padding-top: 30px;
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px #00d4ff;
+            color: #5ad1ff;
+            text-shadow: 0 0 12px #00e1ff;
         }
 
-        #container {
-            width: 90%;
-            margin: 40px auto;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 0 20px #00d4ff33;
-            backdrop-filter: blur(8px);
+        input {
+            width: 320px;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            margin-top: 20px;
+            font-size: 16px;
+            background: rgba(255,255,255,0.1);
+            color: #e8f6ff;
+            outline: none;
+            box-shadow: 0 0 12px #00e1ff33;
         }
 
-        canvas {
-            margin-top: 30px;
+        button {
+            margin-top: 20px;
+            padding: 12px 25px;
+            border-radius: 12px;
+            border: none;
+            background: #00e1ff;
+            color: #001a29;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 18px #00e1ff88;
+            transition: 0.2s;
         }
 
-        .loader {
-            text-align: center;
+        button:hover {
+            background: #5ad1ff;
+            box-shadow: 0 0 24px #00e1ffcc;
+        }
+
+        #result {
             margin-top: 40px;
-            font-size: 20px;
-            color: #00d4ff;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: .4; }
-            50% { opacity: 1; }
-            100% { opacity: .4; }
+            font-size: 22px;
+            color: #5ad1ff;
+            text-shadow: 0 0 8px #00e1ff;
         }
     </style>
 </head>
+
 <body>
 
-    <h1>📡 Analyse Futuriste des Commits GitHub</h1>
+    <h1>🔮 Extraction des Minutes via Flask</h1>
 
-    <div id="container">
-        <h2>Commits minute par minute</h2>
-        <p>Source : <code>OpenRSI/5MCSI_Metriques</code></p>
+    <p>Entrez une date au format ISO 8601 :</p>
+    <p><code>2024-11-30T14:42:00Z</code></p>
 
-        <div class="loader" id="loading">Chargement des données...</div>
+    <input type="text" id="dateInput" placeholder="2025-06-01T10:25:00Z">
+    <br>
+    <button onclick="callApi()">Extraire les minutes</button>
 
-        <canvas id="commitChart"></canvas>
-    </div>
+    <div id="result"></div>
 
-<script>
-async function fetchCommitData() {
-    const url = "https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits";
-    const response = await fetch(url);
-    const data = await response.json();
-
-    // Extraire les dates ISO
-    const timestamps = data.map(commit => new Date(commit.commit.author.date));
-
-    // Arrondir à la minute
-    const minutes = timestamps.map(t => {
-        t.setSeconds(0, 0);
-        return t.toISOString();
-    });
-
-    // Compter minute par minute
-    const counts = {};
-    minutes.forEach(min => {
-        counts[min] = (counts[min] || 0) + 1;
-    });
-
-    // Transformer en arrays pour Chart.js
-    const labels = Object.keys(counts).sort();
-    const values = labels.map(l => counts[l]);
-
-    return { labels, values };
-}
-
-async function renderChart() {
-    const ctx = document.getElementById("commitChart");
-    const loading = document.getElementById("loading");
-
-    const { labels, values } = await fetchCommitData();
-
-    loading.style.display = "none";
-
-    new Chart(ctx, {
-        type: "line",
-        data: {
-            labels: labels.map(l => new Date(l).toLocaleTimeString()),
-            datasets: [{
-                label: "Commits par minute",
-                data: values,
-                borderWidth: 2,
-                tension: 0.3,
-                borderColor: "#00d4ff",
-                backgroundColor: "#00d4ff33",
-                pointRadius: 4,
-                pointBackgroundColor: "#00d4ff",
-                pointGlow: true
-            }]
-        },
-        options: {
-            scales: {
-                x: {
-                    ticks: { color: "#e0eaff" },
-                    grid: { color: "#00d4ff22" }
-                },
-                y: {
-                    ticks: { color: "#e0eaff" },
-                    grid: { color: "#00d4ff22" }
-                }
-            },
-            plugins: {
-                legend: {
-                    labels: { color: "#e0eaff" }
-                }
-            }
+    <script>
+    async function callApi() {
+        const dateString = document.getElementById("dateInput").value.trim();
+        if (!dateString) {
+            document.getElementById("result").innerHTML = "⚠️ Veuillez entrer une date.";
+            return;
         }
-    });
-}
 
-renderChart();
-</script>
+        const url = `http://localhost:5000/extract-minutes/${dateString}`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            document.getElementById("result").innerHTML = 
+                `🕒 Minutes extraites : <strong>${data.minutes}</strong>`;
+        } catch (error) {
+            document.getElementById("result").innerHTML = 
+                "❌ Erreur lors de la requête à l'API Flask.";
+        }
+    }
+    </script>
 
 </body>
 </html>
