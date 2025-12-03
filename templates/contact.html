@@ -2,56 +2,140 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Contact</title>
+    <title>Contactez-nous</title>
+
+    <!-- Police Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Icones Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(135deg, #4c6ef5, #15aabf);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .contact-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
             padding: 40px;
-        }
-        .container {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            max-width: 500px;
-            margin: auto;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            margin-top: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        textarea {
-            height: 120px;
-        }
-        button {
-            margin-top: 15px;
-            background: #4285f4;
+            width: 450px;
             color: white;
-            border: none;
-            padding: 12px 18px;
-            border-radius: 5px;
-            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            animation: fadeIn 0.7s ease;
         }
-        button:hover {
-            background: #3367d6;
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .flash {
-            background: #d4edda;
-            padding: 10px;
+
+        h2 {
+            text-align: center;
             margin-bottom: 15px;
-            border-left: 4px solid #28a745;
-            color: #155724;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            font-size: 14px;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 6px;
+            font-size: 14px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            transition: 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            background: rgba(255, 255, 255, 0.35);
+            transform: scale(1.02);
+        }
+
+        .input-group textarea {
+            height: 120px;
+            resize: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #ffd43b;
+            color: #000;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: 0.3s ease;
+        }
+
+        button:hover {
+            background: #fcc419;
+            transform: scale(1.03);
+        }
+
+        .socials {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .socials i {
+            font-size: 22px;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .socials i:hover {
+            transform: scale(1.2);
+            color: #ffd43b;
+        }
+
+        /* Message flash */
+        .flash {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>📩 Contactez-nous</h2>
+<div class="contact-container">
+
+    <h2><i class="fa-solid fa-envelope"></i> Contactez-nous</h2>
+    <p class="subtitle">Nous serons ravis de vous répondre rapidement</p>
 
     {% with messages = get_flashed_messages() %}
       {% if messages %}
@@ -61,19 +145,33 @@
 
     <form action="/contact" method="POST">
 
-        <label for="nom">Nom</label>
-        <input type="text" id="nom" name="nom" required>
+        <div class="input-group">
+            <label for="nom"><i class="fa-solid fa-user"></i> Nom</label>
+            <input type="text" id="nom" name="nom" required>
+        </div>
 
-        <label for="prenom">Prénom</label>
-        <input type="text" id="prenom" name="prenom" required>
+        <div class="input-group">
+            <label for="prenom"><i class="fa-solid fa-user-pen"></i> Prénom</label>
+            <input type="text" id="prenom" name="prenom" required>
+        </div>
 
-        <label for="message">Message</label>
-        <textarea id="message" name="message" required></textarea>
+        <div class="input-group">
+            <label for="message"><i class="fa-solid fa-comment-dots"></i> Message</label>
+            <textarea id="message" name="message" required></textarea>
+        </div>
 
-        <button type="submit">Envoyer</button>
+        <button type="submit">
+            <i class="fa-solid fa-paper-plane"></i> Envoyer
+        </button>
     </form>
+
+    <div class="socials">
+        <i class="fa-brands fa-facebook"></i>
+        <i class="fa-brands fa-instagram"></i>
+        <i class="fa-brands fa-twitter"></i>
+    </div>
+
 </div>
 
 </body>
 </html>
-
