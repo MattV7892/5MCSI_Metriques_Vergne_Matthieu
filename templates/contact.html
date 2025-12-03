@@ -3,105 +3,734 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Histogramme - Températures Tawarano</title>
-    
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    
-    <script type="text/javascript">
-        
-        google.charts.load('current', {'packages':['corechart']});
-        
- 
-        google.charts.setOnLoadCallback(drawChart);
-
-       
-        function drawChart() {
-            
-            var data = google.visualization.arrayToDataTable([
-                ['Mois', 'Température (°C)', { role: 'style' }],  
-                ['Janvier',     5,  '#5470C6'],     
-                ['Février',     7,  '#91CC75'],      
-                ['Mars',        12, '#FAC858'],      
-                ['Avril',       16, '#EE6666'],     
-                ['Mai',         20, '#73C0DE'],      
-                ['Juin',        24, '#3BA272'],      
-                ['Juillet',     27, '#FC8452'],      
-                ['Août',        26, '#9A60B4'],      
-                ['Septembre',   22, '#EA7CCC'],     
-                ['Octobre',     17, '#5470C6'],      
-                ['Novembre',    11, '#91CC75'],      
-                ['Décembre',    6,  '#FAC858']       
-            ]);
-
-           
-            var options = {
-                title: 'Évolution des températures à Tawarano',  
-                width: 1200,                                     
-                height: 600,                                      
-                legend: { position: 'none' },                    
-                hAxis: {                                        
-                    title: 'Mois',
-                    slantedText: true,                            
-                    slantedTextAngle: 45
-                },
-                vAxis: {                                       
-                    title: 'Température (°C)',
-                    minValue: 0
-                },
-                bar: { groupWidth: '75%' },                   
-                chartArea: {                                    
-                    width: '80%',
-                    height: '70%'
-                }
-            };
-
-    
-            var chart = new google.visualization.ColumnChart(
-                document.getElementById('chart_div')
-            );
-
-      
-            chart.draw(data, options);
-        }
-    </script>
+    <title>Contact Terminal - Tawarano</title>
     
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+            font-family: 'Rajdhani', sans-serif;
+            background: #000;
+            color: #00ff41;
+            overflow-x: hidden;
+            cursor: crosshair;
         }
-        h1 {
-            color: #333;
-            text-align: center;
+
+        /* Grille cyberpunk en arrière-plan */
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            z-index: -2;
         }
-        #chart_div {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Particules hexagonales */
+        .hex-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .hex {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            transform: rotate(45deg);
+            animation: hexFloat 15s linear infinite;
+        }
+
+        @keyframes hexFloat {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Container principal */
+        .terminal-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
-            margin: 20px auto;
+            position: relative;
         }
-        p {
+
+        .main-terminal {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff41;
+            border-radius: 15px;
+            box-shadow: 
+                0 0 50px rgba(0, 255, 65, 0.5),
+                inset 0 0 50px rgba(0, 255, 65, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: terminalGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes terminalGlow {
+            0% {
+                box-shadow: 
+                    0 0 50px rgba(0, 255, 65, 0.5),
+                    inset 0 0 50px rgba(0, 255, 65, 0.1);
+            }
+            100% {
+                box-shadow: 
+                    0 0 80px rgba(0, 255, 65, 0.8),
+                    inset 0 0 80px rgba(0, 255, 65, 0.2);
+            }
+        }
+
+        /* En-tête terminal */
+        .terminal-header {
+            background: linear-gradient(90deg, #001a00, #003300, #001a00);
+            padding: 15px 30px;
+            border-bottom: 1px solid #00ff41;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid #00ff41;
+            animation: pulse 2s infinite;
+        }
+
+        .btn-circle:nth-child(1) { background: #ff0000; }
+        .btn-circle:nth-child(2) { background: #ffff00; }
+        .btn-circle:nth-child(3) { background: #00ff00; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .terminal-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #00ff41;
+            text-shadow: 0 0 10px #00ff41;
+            animation: textFlicker 3s infinite;
+        }
+
+        @keyframes textFlicker {
+            0%, 98% { opacity: 1; }
+            99% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        /* Corps du terminal */
+        .terminal-body {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            min-height: 600px;
+        }
+
+        /* Section informations */
+        .info-section {
+            position: relative;
+        }
+
+        .info-section::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 10px;
+            animation: borderScan 3s linear infinite;
+        }
+
+        @keyframes borderScan {
+            0% {
+                border-color: rgba(0, 255, 65, 0.3);
+                box-shadow: 0 0 0 rgba(0, 255, 65, 0.3);
+            }
+            50% {
+                border-color: rgba(0, 255, 65, 0.8);
+                box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            }
+            100% {
+                border-color: rgba(0, 255, 65, 0.3);
+                box-shadow: 0 0 0 rgba(0, 255, 65, 0.3);
+            }
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5em;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #00ff41, #00cc33, #00ff41);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% {
+                text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            }
+            100% {
+                text-shadow: 0 0 40px rgba(0, 255, 65, 1);
+            }
+        }
+
+        .info-text {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            color: rgba(0, 255, 65, 0.8);
+            font-weight: 300;
+        }
+
+        .contact-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .contact-item:hover::before {
+            left: 100%;
+        }
+
+        .contact-item:hover {
+            background: rgba(0, 255, 65, 0.1);
+            border-color: #00ff41;
+            transform: translateX(10px);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #00ff41;
+            color: #000;
+            border-radius: 50%;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .contact-text {
+            font-size: 1em;
+            color: #00ff41;
+            font-weight: 600;
+        }
+
+        /* Section formulaire */
+        .form-section {
+            position: relative;
+        }
+
+        .form-section::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 10px;
+            animation: borderScan 3s linear infinite 1.5s;
+        }
+
+        .form-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #00ff41;
+            text-transform: uppercase;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00ff41;
+            font-size: 0.9em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(0, 255, 65, 0.5);
+            border-radius: 8px;
+            color: #00ff41;
+            font-size: 1em;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .input-field::placeholder {
+            color: rgba(0, 255, 65, 0.5);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #00ff41;
+            background: rgba(0, 255, 65, 0.05);
+            box-shadow: 
+                0 0 20px rgba(0, 255, 65, 0.5),
+                inset 0 0 20px rgba(0, 255, 65, 0.1);
+        }
+
+        .input-field:focus + .input-scan {
+            animation: inputScan 0.5s ease-out;
+        }
+
+        .input-scan {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        @keyframes inputScan {
+            0% {
+                border-color: transparent;
+            }
+            50% {
+                border-color: #00ff41;
+                box-shadow: 0 0 30px rgba(0, 255, 65, 0.8);
+            }
+            100% {
+                border-color: transparent;
+            }
+        }
+
+        textarea.input-field {
+            resize: vertical;
+            min-height: 120px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(45deg, #000, #003300, #000);
+            border: 2px solid #00ff41;
+            border-radius: 8px;
+            color: #00ff41;
+            font-size: 1.2em;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .submit-button:hover::before {
+            left: 100%;
+        }
+
+        .submit-button:hover {
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 
+                0 0 30px rgba(0, 255, 65, 0.8),
+                inset 0 0 30px rgba(0, 255, 65, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .back-link {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
         }
-        a {
-            color: #4285F4;
+
+        .back-link a {
+            color: #00ff41;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border: 1px solid rgba(0, 255, 65, 0.5);
+            border-radius: 5px;
         }
-        a:hover {
-            text-decoration: underline;
+
+        .back-link a:hover {
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            transform: translateX(-5px);
+        }
+
+        /* Effet de scan */
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff41, transparent);
+            animation: scanLine 4s linear infinite;
+            z-index: 10;
+        }
+
+        @keyframes scanLine {
+            0% {
+                top: 0;
+                opacity: 1;
+            }
+            100% {
+                top: 100vh;
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .terminal-body {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 30px;
+            }
+
+            .section-title {
+                font-size: 2em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .terminal-body {
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 1.5em;
+            }
+
+            .terminal-title {
+                font-size: 1em;
+            }
+        }
+
+        /* Effet de typing pour le titre */
+        .typing-effect::after {
+            content: '|';
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
         }
     </style>
 </head>
 <body>
-    <h1>Histogramme des températures - Tawarano</h1>
-    
- 
-    <div id="chart_div"></div>
-    
-    <p><a href="/">Retour à l'accueil</a></p>
+    <!-- Grille cyberpunk -->
+    <div class="cyber-grid"></div>
+
+    <!-- Particules hexagonales -->
+    <div class="hex-particles" id="hexParticles"></div>
+
+    <!-- Ligne de scan -->
+    <div class="scan-line"></div>
+
+    <!-- Container principal -->
+    <div class="terminal-container">
+        <div class="main-terminal">
+            
+            <!-- En-tête terminal -->
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <div class="btn-circle"></div>
+                    <div class="btn-circle"></div>
+                    <div class="btn-circle"></div>
+                </div>
+                <div class="terminal-title typing-effect">CONTACT_TERMINAL_v2.1.5</div>
+            </div>
+
+            <!-- Corps du terminal -->
+            <div class="terminal-body">
+                
+                <!-- Section informations -->
+                <div class="info-section">
+                    <h1 class="section-title">CONNECT</h1>
+                    <p class="info-text">
+                        Établissez une connexion sécurisée avec notre système. 
+                        Transmettez vos données via le protocole de communication 
+                        crypté ci-dessous.
+                    </p>
+
+                    <div class="contact-grid">
+                        <div class="contact-item">
+                            <div class="contact-icon">📧</div>
+                            <div class="contact-text">neural@tawarano.sys</div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-icon">📡</div>
+                            <div class="contact-text">FREQ: +33.1.23.45.67.89</div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-icon">🌐</div>
+                            <div class="contact-text">NODE: Tawarano_Central</div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-icon">⚡</div>
+                            <div class="contact-text">STATUS: ONLINE 24/7</div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-icon">🔒</div>
+                            <div class="contact-text">ENCRYPTION: AES-256</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section formulaire -->
+                <div class="form-section">
+                    <h2 class="form-title">DATA_TRANSMISSION</h2>
+                    
+                    <form id="cyberForm">
+                        <div class="input-group">
+                            <label class="input-label" for="nom">USER_NAME</label>
+                            <input 
+                                type="text" 
+                                id="nom" 
+                                name="nom" 
+                                class="input-field"
+                                placeholder="Entrez votre nom..." 
+                                required
+                            >
+                            <div class="input-scan"></div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label" for="prenom">FIRST_NAME</label>
+                            <input 
+                                type="text" 
+                                id="prenom" 
+                                name="prenom" 
+                                class="input-field"
+                                placeholder="Entrez votre prénom..." 
+                                required
+                            >
+                            <div class="input-scan"></div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label" for="message">MESSAGE_DATA</label>
+                            <textarea 
+                                id="message" 
+                                name="message" 
+                                class="input-field"
+                                placeholder="Transmettez votre message..." 
+                                required
+                            ></textarea>
+                            <div class="input-scan"></div>
+                        </div>
+
+                        <button type="submit" class="submit-button">
+                            TRANSMIT_DATA
+                        </button>
+                    </form>
+
+                    <div class="back-link">
+                        <a href="/">
+                            ← RETURN_TO_MAIN
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Générer des hexagones aléatoires
+        const hexContainer = document.getElementById('hexParticles');
+        function createHex() {
+            const hex = document.createElement('div');
+            hex.className = 'hex';
+            hex.style.left = Math.random() * 100 + '%';
+            hex.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            hex.style.animationDelay = Math.random() * 5 + 's';
+            hexContainer.appendChild(hex);
+
+            // Supprimer l'hexagone après l'animation
+            setTimeout(() => {
+                hex.remove();
+            }, 20000);
+        }
+
+        // Créer des hexagones en continu
+        setInterval(createHex, 500);
+
+        // Effet de typing pour le titre
+        const title = document.querySelector('.terminal-title');
+        const originalText = title.textContent;
+        title.textContent = '';
+        
+        let i = 0;
+        function typeWriter() {
+            if (i < originalText.length) {
+                title.textContent += originalText.charAt(i);
+                i++;
+                setTimeout(typeWriter, 100);
+            }
+        }
+        
+        setTimeout(typeWriter, 1000);
+
+        // Gestion du formulaire avec effet cyberpunk
+        document.getElementById('cyberForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btn = this.querySelector('.submit-button');
+            const originalText = btn.textContent;
+            
+            // Animation de transmission
+            btn.textContent = 'TRANSMITTING...';
+            btn.style.background = 'linear-gradient(45deg, #003300, #00ff41, #003300)';
+            
+            setTimeout(() => {
+                btn.textContent = 'DATA_SENT';
+                btn.style.background = 'linear-gradient(45deg, #004400, #00ff00, #004400)';
+            }, 1500);
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = 'linear-gradient(45deg, #000, #003300, #000)';
+                this.reset();
+            }, 3000);
+        });
+
+        // Effet de glitch aléatoire sur le titre
+        setInterval(() => {
+            const title = document.querySelector('.terminal-title');
+            if (Math.random() < 0.1) {
+                title.style.textShadow = '2px 0 #ff0000, -2px 0 #00ffff';
+                setTimeout(() => {
+                    title.style.textShadow = '0 0 10px #00ff41';
+                }, 100);
+            }
+        }, 2000);
+
+        // Son de typing (simulé visuellement)
+        document.querySelectorAll('.input-field').forEach(input => {
+            input.addEventListener('input', function() {
+                this.style.boxShadow = '0 0 30px rgba(0, 255, 65, 0.8), inset 0 0 30px rgba(0, 255, 65, 0.2)';
+                setTimeout(() => {
+                    this.style.boxShadow = '';
+                }, 200);
+            });
+        });
+    </script>
 </body>
 </html>
