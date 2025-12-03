@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Analyse des Commits GitHub</title>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Style Futuriste -->
+    <style>
+        body {
+            background: radial-gradient(circle at 20% 20%, #0d1b2a, #000);
+            font-family: "Orbitron", sans-serif;
+            color: #e0eaff;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            padding-top: 30px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #00d4ff;
+        }
+
+        #container {
+            width: 90%;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 0 20px #00d4ff33;
+            backdrop-filter: blur(8px);
+        }
+
+        canvas {
+            margin-top: 30px;
+        }
+
+        .loader {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 20px;
+            color: #00d4ff;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: .4; }
+            50% { opacity: 1; }
+            100% { opacity: .4; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📡 Analyse Futuriste des Commits GitHub</h1>
+
+    <div id="container">
+        <h2>Commits minute par minute</h2>
+        <p>Source : <code>OpenRSI/5MCSI_Metriques</code></p>
+
+        <div class="loader" id="loading">Chargement des données...</div>
+
+        <canvas id="commitChart"></canvas>
+    </div>
+
+<script>
+async function fetchCommitData() {
+    const url = "https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits";
+    const response = await fetch(url);
+    const data = await response.json();
+
+    // Extraire les dates ISO
+    const timestamps = data.map(commit => new Date(commit.commit.author.date));
+
+    // Arrondir à la minute
+    const minutes = timestamps.map(t => {
+        t.setSeconds(0, 0);
+        return t.toISOString();
+    });
+
+    // Compter minute par minute
+    const counts = {};
+    minutes.forEach(min => {
+        counts[min] = (counts[min] || 0) + 1;
+    });
+
+    // Transformer en arrays pour Chart.js
+    const labels = Object.keys(counts).sort();
+    const values = labels.map(l => counts[l]);
+
+    return { labels, values };
+}
+
+async function renderChart() {
+    const ctx = document.getElementById("commitChart");
+    const loading = document.getElementById("loading");
+
+    const { labels, values } = await fetchCommitData();
+
+    loading.style.display = "none";
+
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels.map(l => new Date(l).toLocaleTimeString()),
+            datasets: [{
+                label: "Commits par minute",
+                data: values,
+                borderWidth: 2,
+                tension: 0.3,
+                borderColor: "#00d4ff",
+                backgroundColor: "#00d4ff33",
+                pointRadius: 4,
+                pointBackgroundColor: "#00d4ff",
+                pointGlow: true
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    ticks: { color: "#e0eaff" },
+                    grid: { color: "#00d4ff22" }
+                },
+                y: {
+                    ticks: { color: "#e0eaff" },
+                    grid: { color: "#00d4ff22" }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: { color: "#e0eaff" }
+                }
+            }
+        }
+    });
+}
+
+renderChart();
+</script>
+
+</body>
+</html>
