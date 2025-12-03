@@ -1,89 +1,669 @@
+@⁨Matthieu Vergne⁩ 
+utilise se html : 
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Commits par minute</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse des Commits - Sakura Analytics</title>
+    
     <!-- Google Charts -->
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-
-    <script type="text/javascript">
-        google.charts.load('current', {'packages':['corechart']});
-        google.charts.setOnLoadCallback(drawChart);
-
-        function drawChart() {
-            // On récupère les données depuis la route Flask
-            fetch('/commits-data/')
-                .then(response => response.json())
-                .then(json => {
-                    const results = json.results || [];
-
-                    const data = new google.visualization.DataTable();
-                    data.addColumn('string', 'Minute');
-                    data.addColumn('number', 'Nombre de commits');
-
-                    // On ajoute les 60 minutes (0 à 59)
-                    results.forEach(item => {
-                        const label = item.minute.toString().padStart(2, '0');
-                        data.addRow([label, item.count]);
-                    });
-
-                    const options = {
-                        title: 'Nombre de commits par minute (0 à 59)',
-                        width: 1200,
-                        height: 600,
-                        legend: { position: 'none' },
-                        hAxis: {
-                            title: 'Minute dans l\'heure',
-                            slantedText: true,
-                            slantedTextAngle: 45
-                        },
-                        vAxis: {
-                            title: 'Nombre de commits',
-                            minValue: 0
-                        },
-                        bar: { groupWidth: '90%' },
-                        chartArea: {
-                            width: '80%',
-                            height: '70%'
-                        }
-                    };
-
-                    const chart = new google.visualization.ColumnChart(
-                        document.getElementById('chart_div')
-                    );
-                    chart.draw(data, options);
-                })
-                .catch(err => {
-                    console.error('Erreur lors du fetch /commits-data/ :', err);
-                    document.getElementById('chart_div').innerText =
-                        'Erreur lors du chargement des données.';
-                });
-        }
-    </script>
-
+    
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+            font-family: 'Quicksand', 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #ffe5f1 50%, #ffd4e5 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
         }
-        h1 {
+
+        /* Pétales de sakura qui tombent */
+        .sakura-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .sakura {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ffb3d9 0%, #ff8cc6 100%);
+            border-radius: 50% 0 50% 0;
+            opacity: 0.8;
+            animation: fall linear infinite;
+            transform-origin: center;
+        }
+
+        @keyframes fall {
+            0% {
+                top: -10%;
+                transform: translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                top: 110%;
+                transform: translateX(100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Nuages kawaii en arrière-plan */
+        .clouds {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 100px;
+            animation: float-cloud 30s linear infinite;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 100px;
+        }
+
+        .cloud::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud::after {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            right: 10px;
+        }
+
+        @keyframes float-cloud {
+            0% {
+                left: -200px;
+            }
+            100% {
+                left: 110%;
+            }
+        }
+
+        /* Container principal */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header avec motif japonais */
+        .header {
+            background: linear-gradient(135deg, #ffffff 0%, #fff5f9 100%);
+            border-radius: 30px;
+            padding: 50px;
             text-align: center;
-            color: #333;
+            box-shadow: 0 20px 60px rgba(255, 105, 180, 0.2);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #ffb3d9;
+            animation: slideDown 0.8s ease-out;
         }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Motif de vagues japonaises */
+        .header::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%23ffb3d9' opacity='0.3'/%3E%3C/svg%3E") no-repeat bottom;
+            background-size: cover;
+            opacity: 0.5;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            color: #ff69b4;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1::before {
+            content: '🌸';
+            margin-right: 15px;
+        }
+
+        .header h1::after {
+            content: '🌸';
+            margin-left: 15px;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            color: #ff8cc6;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Carte du graphique */
+        .chart-container {
+            background: linear-gradient(135deg, #ffffff 0%, #fff9fc 100%);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(255, 105, 180, 0.2);
+            margin-bottom: 30px;
+            border: 3px solid #ffd4e5;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Loading kawaii */
+        .loading {
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .loading-spinner::before {
+            content: '🌸';
+            font-size: 4em;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.3em;
+            color: #ff69b4;
+            font-weight: 600;
+        }
+
+        .loading-subtext {
+            font-size: 1em;
+            color: #ffb3d9;
+            margin-top: 10px;
+        }
+
+        /* Chart */
         #chart_div {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin: 20px auto;
+            width: 100%;
+            height: 500px;
+            display: none;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        /* Statistics cards kawaii */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+            display: none;
+            animation: slideUp 1s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff 0%, #fff5f9 100%);
+            border-radius: 25px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(255, 105, 180, 0.15);
+            border: 3px solid #ffd4e5;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 179, 217, 0.1) 0%, transparent 70%);
+            animation: rotate-slow 15s linear infinite;
+        }
+
+        @keyframes rotate-slow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(255, 105, 180, 0.3);
+            border-color: #ffb3d9;
+        }
+
+        .stat-icon {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            filter: drop-shadow(2px 2px 4px rgba(255, 105, 180, 0.3));
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-label {
+            font-size: 1em;
+            color: #ff8cc6;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-value {
+            font-size: 3em;
+            font-weight: 700;
+            color: #ff69b4;
+            text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Error kawaii */
+        .error {
+            background: linear-gradient(135deg, #ffe5f1 0%, #ffd4e5 100%);
+            border: 3px solid #ff8cc6;
+            border-radius: 25px;
+            padding: 40px;
+            text-align: center;
+            display: none;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .error h3 {
+            font-size: 2em;
+            color: #ff69b4;
+            margin-bottom: 15px;
+        }
+
+        .error h3::before {
+            content: '(｡•́︿•̀｡) ';
+        }
+
+        .error p {
+            font-size: 1.2em;
+            color: #ff8cc6;
+        }
+
+        /* Bouton retour kawaii */
+        .back-link {
+            text-align: center;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px 45px;
+            background: linear-gradient(135deg, #ff69b4 0%, #ff8cc6 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.2em;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.4);
+            transition: all 0.3s ease;
+            border: 3px solid #ffb3d9;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 105, 180, 0.6);
+            background: linear-gradient(135deg, #ff8cc6 0%, #ffb3d9 100%);
+        }
+
+        .back-btn::before {
+            content: '🏠';
+            font-size: 1.5em;
+        }
+
+        /* Décorations kawaii */
+        .decoration {
+            position: absolute;
+            font-size: 3em;
+            opacity: 0.3;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .deco-1 { top: 10%; left: 5%; animation-delay: 0s; }
+        .deco-2 { top: 20%; right: 8%; animation-delay: 1s; }
+        .deco-3 { bottom: 15%; left: 10%; animation-delay: 2s; }
+        .deco-4 { bottom: 25%; right: 5%; animation-delay: 1.5s; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2em;
+            }
+
+            .header p {
+                font-size: 1em;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .chart-container {
+                padding: 25px 15px;
+            }
+
+            #chart_div {
+                height: 350px;
+            }
+
+            .stat-value {
+                font-size: 2.2em;
+            }
+
+            .stat-icon {
+                font-size: 2.5em;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Combien de commits pour ce projet ?</h1>
-    <div id="chart_div" style="width: 1200px; height: 600px;"></div>
+    <!-- Nuages kawaii -->
+    <div class="clouds">
+        <div class="cloud" style="width: 100px; height: 40px; top: 10%; left: -200px; animation-duration: 40s;"></div>
+        <div class="cloud" style="width: 120px; height: 45px; top: 25%; left: -200px; animation-duration: 50s; animation-delay: 5s;"></div>
+        <div class="cloud" style="width: 90px; height: 35px; top: 40%; left: -200px; animation-duration: 45s; animation-delay: 10s;"></div>
+    </div>
+
+    <!-- Pétales de sakura -->
+    <div class="sakura-container" id="sakura-container"></div>
+
+    <!-- Décorations kawaii -->
+    <div class="decoration deco-1">🎀</div>
+    <div class="decoration deco-2">✨</div>
+    <div class="decoration deco-3">💕</div>
+    <div class="decoration deco-4">🌸</div>
+
+    <!-- Container principal -->
+    <div class="main-container">
+        
+        <!-- Header -->
+        <div class="header">
+            <h1>Analyse des Commits</h1>
+            <p>Distribution kawaii des commits par minute (◕‿◕✿)</p>
+        </div>
+
+        <!-- Chart Container -->
+        <div class="chart-container">
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Chargement en cours...</div>
+                <div class="loading-subtext">Les sakuras préparent vos données ♡</div>
+            </div>
+
+            <!-- Error -->
+            <div id="error" class="error">
+                <h3>Erreur</h3>
+                <p id="error-message"></p>
+            </div>
+
+            <!-- Chart -->
+            <div id="chart_div"></div>
+        </div>
+
+        <!-- Statistics -->
+        <div id="stats" class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-label">Total Commits</div>
+                <div class="stat-value" id="total-commits">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🌟</div>
+                <div class="stat-label">Minute Star</div>
+                <div class="stat-value" id="peak-minute">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💖</div>
+                <div class="stat-label">Max Commits</div>
+                <div class="stat-value" id="max-commits">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✨</div>
+                <div class="stat-label">Moyenne</div>
+                <div class="stat-value" id="avg-commits">0</div>
+            </div>
+        </div>
+
+        <!-- Back button -->
+        <div class="back-link">
+            <a href="/" class="back-btn">Retour à l'accueil</a>
+        </div>
+
+    </div>
+
+    <script type="text/javascript">
+        // Générer des pétales de sakura
+        const sakuraContainer = document.getElementById('sakura-container');
+        for (let i = 0; i < 30; i++) {
+            const sakura = document.createElement('div');
+            sakura.className = 'sakura';
+            sakura.style.left = Math.random() * 100 + '%';
+            sakura.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            sakura.style.animationDelay = Math.random() * 5 + 's';
+            sakura.style.width = (Math.random() * 15 + 15) + 'px';
+            sakura.style.height = sakura.style.width;
+            sakuraContainer.appendChild(sakura);
+        }
+
+        // Charger Google Charts
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(loadCommitsData);
+
+        function loadCommitsData() {
+            fetch('/api/commits-data')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur réseau : ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                        return;
+                    }
+
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('chart_div').style.display = 'block';
+                    document.getElementById('stats').style.display = 'grid';
+                    
+                    drawChart(data);
+                    displayStats(data);
+                })
+                .catch(error => {
+                    showError('Impossible de charger les données : ' + error.message);
+                });
+        }
+
+        function drawChart(data) {
+            var chartData = [['Minute', 'Commits']];
+            
+            for (let i = 0; i < data.minutes.length; i++) {
+                chartData.push([
+                    data.minutes[i].toString().padStart(2, '0'), 
+                    data.counts[i]
+                ]);
+            }
+            
+            var dataTable = google.visualization.arrayToDataTable(chartData);
+
+            var options = {
+                title: '🌸 Commits par minute 🌸',
+                titleTextStyle: {
+                    fontSize: 20,
+                    bold: true,
+                    color: '#ff69b4'
+                },
+                width: '100%',
+                height: 500,
+                hAxis: {
+                    title: 'Minute (◕‿◕)',
+                    gridlines: { count: 12, color: '#ffd4e5' },
+                    textStyle: { fontSize: 11, color: '#ff8cc6' },
+                    titleTextStyle: { color: '#ff69b4', bold: true }
+                },
+                vAxis: {
+                    title: 'Nombre de commits ♡',
+                    minValue: 0,
+                    gridlines: { color: '#ffe5f1' },
+                    textStyle: { color: '#ff8cc6' },
+                    titleTextStyle: { color: '#ff69b4', bold: true }
+                },
+                colors: ['#ff69b4'],
+                legend: { position: 'none' },
+                bar: { groupWidth: '75%' },
+                chartArea: {
+                    width: '85%',
+                    height: '70%'
+                },
+                animation: {
+                    startup: true,
+                    duration: 1500,
+                    easing: 'out'
+                },
+                backgroundColor: {
+                    fill: 'transparent'
+                }
+            };
+
+            var chart = new google.visualization.ColumnChart(
+                document.getElementById('chart_div')
+            );
+
+            chart.draw(dataTable, options);
+        }
+
+        function displayStats(data) {
+            const totalCommits = data.counts.reduce((a, b) => a + b, 0);
+            const maxCommits = Math.max(...data.counts);
+            const peakMinute = data.counts.indexOf(maxCommits);
+            const avgCommits = (totalCommits / 60).toFixed(2);
+            
+            animateValue('total-commits', 0, totalCommits, 1500);
+            document.getElementById('peak-minute').textContent = 
+                peakMinute.toString().padStart(2, '0');
+            animateValue('max-commits', 0, maxCommits, 1500);
+            document.getElementById('avg-commits').textContent = avgCommits;
+        }
+
+        function animateValue(id, start, end, duration) {
+            const element = document.getElementById(id);
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= end) {
+                    element.textContent = Math.round(end);
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.round(current);
+                }
+            }, 16);
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            const errorDiv = document.getElementById('error');
+            document.getElementById('error-message').textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
 </body>
 </html>
